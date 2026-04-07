@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { writeFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 
 const BASE_URL = process.env.PINGCODE_BASE_URL;
 const CLIENT_ID = process.env.PINGCODE_CLIENT_ID;
@@ -66,6 +66,8 @@ function buildHtml(lastWeek, completedItems, completedTotal, bugItems, bugTotal)
       <td>${escapeHtml(item.assignee?.display_name || item.assignee?.name || "-")}</td>
     </tr>`).join("");
 
+  const css = readFileSync("style.css", "utf-8");
+
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -73,35 +75,7 @@ function buildHtml(lastWeek, completedItems, completedTotal, bugItems, bugTotal)
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>企业知识管理平台 - 工作项报告</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; color: #333; padding: 24px; }
-  .container { max-width: 1200px; margin: 0 auto; }
-  h1 { font-size: 24px; margin-bottom: 8px; }
-  .subtitle { color: #666; margin-bottom: 32px; font-size: 14px; }
-  .section { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 24px; overflow: hidden; }
-  .section-header { padding: 16px 24px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 12px; }
-  .section-header h2 { font-size: 18px; }
-  .count { background: #e8f4fd; color: #1a73e8; padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: 600; }
-  .count.red { background: #fde8e8; color: #d93025; }
-  table { width: 100%; border-collapse: collapse; }
-  th { background: #fafbfc; text-align: left; padding: 10px 24px; font-size: 13px; color: #666; font-weight: 600; border-bottom: 1px solid #eee; }
-  td { padding: 12px 24px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
-  tr:hover { background: #f8f9fa; }
-  a { color: #1a73e8; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-  .completed { background: #e6f4ea; color: #1e8e3e; }
-  .pending { background: #fef3e0; color: #e37400; }
-  .type-story { background: #e8f0fe; color: #1967d2; }
-  .type-task { background: #f3e8fd; color: #8430ce; }
-  .type-bug { background: #fde8e8; color: #d93025; }
-  .type-epic { background: #e0f7fa; color: #00838f; }
-  .type-feature { background: #fff3e0; color: #e65100; }
-  .priority-最高 { background: #d93025; color: #fff; }
-  .priority-较高 { background: #e37400; color: #fff; }
-  .priority-普通 { background: #1a73e8; color: #fff; }
-  .priority-较低 { background: #5f6368; color: #fff; }
-  .generated { text-align: center; color: #999; font-size: 12px; padding: 16px; }
+${css}
 </style>
 </head>
 <body>
