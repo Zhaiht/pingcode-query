@@ -1,0 +1,12 @@
+{
+  "name": "pingcode-query",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "query": "node index.js",
+    "get-token": "node get-token.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}
