@@ -4,9 +4,10 @@ import { writeFileSync } from "node:fs";
 const BASE_URL = process.env.PINGCODE_BASE_URL;
 const CLIENT_ID = process.env.PINGCODE_CLIENT_ID;
 const CLIENT_SECRET = process.env.PINGCODE_CLIENT_SECRET;
+const PINGCODE_INSTANCE = process.env.PINGCODE_INSTANCE;
 
-if (!BASE_URL || !CLIENT_ID || !CLIENT_SECRET) {
-  console.error("请先在 .env 文件中配置 PINGCODE_BASE_URL, PINGCODE_CLIENT_ID, PINGCODE_CLIENT_SECRET");
+if (!BASE_URL || !CLIENT_ID || !CLIENT_SECRET || !PINGCODE_INSTANCE) {
+  console.error("请先在 .env 文件中配置 PINGCODE_BASE_URL, PINGCODE_CLIENT_ID, PINGCODE_CLIENT_SECRET, PINGCODE_INSTANCE");
   process.exit(1);
 }
 
@@ -45,7 +46,7 @@ function buildHtml(lastWeek, completedItems, completedTotal, bugItems, bugTotal)
   const startDate = new Date(lastWeek.start * 1000).toLocaleDateString("zh-CN");
   const endDate = new Date(lastWeek.end * 1000).toLocaleDateString("zh-CN");
 
-  const itemLink = (item) => item.html_url || (item.short_id ? `https://newtranx.pingcode.com/pjm/workitems/${item.short_id}` : "#");
+  const itemLink = (item) => item.html_url || (item.short_id ? `https://${PINGCODE_INSTANCE}/pjm/workitems/${item.short_id}` : "#");
 
   const completedRows = completedItems.map((item) => `
     <tr>
