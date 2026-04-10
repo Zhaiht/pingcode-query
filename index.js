@@ -27,15 +27,12 @@ async function api(token, path, params = {}) {
 
 function getLastWeekRange() {
   const now = new Date();
-  const dayOfWeek = now.getDay() || 7;
-  const thisMonday = new Date(now);
-  thisMonday.setHours(0, 0, 0, 0);
-  thisMonday.setDate(now.getDate() - dayOfWeek + 1);
-  const lastMonday = new Date(thisMonday);
-  lastMonday.setDate(thisMonday.getDate() - 7);
-  const lastSunday = new Date(thisMonday);
-  lastSunday.setSeconds(lastSunday.getSeconds() - 1);
-  return { start: Math.floor(lastMonday.getTime() / 1000), end: Math.floor(lastSunday.getTime() / 1000) };
+  const end = new Date(now);
+  end.setHours(23, 59, 59, 999);
+  const start = new Date(now);
+  start.setDate(start.getDate() - 7);
+  start.setHours(0, 0, 0, 0);
+  return { start: Math.floor(start.getTime() / 1000), end: Math.floor(end.getTime() / 1000) };
 }
 
 function escapeHtml(str) {
@@ -85,7 +82,7 @@ ${css}
 
   <div class="section">
     <div class="section-header">
-      <h2>✅ 上周已完成的工作项</h2>
+      <h2>✅ 过去7天已完成的工作项</h2>
       <span class="count">${completedTotal} 条</span>
       <span style="color:#999;font-size:13px">${startDate} ~ ${endDate}</span>
     </div>
@@ -97,7 +94,7 @@ ${css}
 
   <div class="section">
     <div class="section-header">
-      <h2>🐛 未处理的缺陷</h2>
+      <h2>🐛 缺陷（未处理 + 已完成）</h2>
       <span class="count red">${bugTotal} 条</span>
       <span style="color:#999;font-size:13px">${startDate} ~ ${endDate}</span>
     </div>
@@ -151,9 +148,11 @@ async function main() {
   if (bugType) {
     const bugStateData = await api(token, "/project/work_item/states", { project_id: projectId, work_item_type_id: bugType.id });
     const pendingIds = (bugStateData.values || []).filter((s) => s.type === "pending").map((s) => s.id).join(",");
-    if (pendingIds) {
+    const completedIds = (bugStateData.values || []).filter((s) => s.type === "completed").map((s) => s.id).join(",");
+    const allBugStateIds = [...pendingIds.split(",").filter(Boolean), ...completedIds.split(",").filter(Boolean)].join(",");
+    if (allBugStateIds) {
       const data = await api(token, "/project/work_items", {
-        project_ids: projectId, type_ids: bugType.id, state_ids: pendingIds,
+        project_ids: projectId, type_ids: bugType.id, state_ids: allBugStateIds,
         updated_between: `${lastWeek.start},${lastWeek.end}`, page_size: 100,
       });
       bugItems = (data.values || []).filter((i) => {
@@ -167,7 +166,7 @@ async function main() {
   const html = buildHtml(lastWeek, completedItems, completedTotal, bugItems, bugTotal);
   writeFileSync("report.html", html, "utf-8");
   console.log(`\n报告已生成: report.html`);
-  console.log(`  上周已完成: ${completedTotal} 条`);
+  console.log(`  过去7天已完成: ${completedTotal} 条`);
   console.log(`  未处理缺陷: ${bugTotal} 条`);
 }
 
